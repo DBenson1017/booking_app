@@ -1,15 +1,19 @@
 require 'pry'
 
 class Hostel
-    attr_accessor :country, :price, :rooms, :available_months
+    attr_accessor :country, :price, :rooms, :available_months, :status
 
     @@all = []
 
-    def initialize(country, price, rooms)
+    #each new instance of Hostel shoule initialize with a:
+    #country (String), price (Integer), number of available rooms (Integer)
+    #and a list of months it is open during (Array), and an automatic status of 'vacany' (String)
+    def initialize(country, price, rooms, available_months, status='vacancy')
         @country = country
         @price = price
         @rooms = rooms
-        @available_months = []
+        @available_months = available_months
+        @status = status
         save_hostel
     end
 
@@ -25,14 +29,13 @@ class Hostel
         self.price
     end
 
-    def add_month(month)
-        self.available_months << month
-    end
-
     def new_booking(month, backpacker)
-        if backpacker.budget >= self.price && (self.available_months.include? month)
+        if backpacker.budget >= self.price && open?
             backpacker.budget -= self.price
             self.rooms -= 1
+            if self.rooms == 0
+                self.status = 'no vacancy'
+            end
             Booking.new(month, backpacker, self)
         else
             "Either this person cannot afford your hostel or you have no availablity for this month."
@@ -59,5 +62,8 @@ class Hostel
         end
     end
 
+    def open?(month)
+        self.available_months.include? month
+    end
 
 end

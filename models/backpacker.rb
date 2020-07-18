@@ -18,13 +18,14 @@ class Backpacker
     end
 
     def make_booking(month, hostel)
-        if self.budget >= hostel.price && (hostel.available_months.include? month)
+        if self.budget >= hostel.price && available?(hostel, month)
             self.budget -= hostel.price
             hostel.rooms -= 1
+            hostel.status = "no vacancy" if hostel.rooms == 0
             Booking.new(month, self, hostel)
-        elsif self.budget < hostel.price && (hostel.available_months.include? month)
+        elsif self.budget < hostel.price && available?(hostel, month) 
             "Sorry. You need more cash."
-        elsif self.budget >= hostel.price && (!hostel.available_months.include? month)
+        elsif self.budget >= hostel.price && !available?(hostel, month)
             "This hostel is not available during this time."
         else
             "Just find a new hostel."
@@ -38,4 +39,9 @@ class Backpacker
             end
         end
     end
+
+    def available?(hostel, month)
+        (hostel.available_months.include? month) && hostel.status == 'vacancy'
+    end
+    
 end
